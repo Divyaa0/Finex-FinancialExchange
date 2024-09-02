@@ -5,13 +5,18 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 // queryClient
 import { QueryClientProvider,QueryClient } from 'react-query';
+import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient=new QueryClient();
 root.render(
   <React.StrictMode>
-    <App />
+    <PrimeReactProvider>
+             <App />
+        </PrimeReactProvider>
   </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

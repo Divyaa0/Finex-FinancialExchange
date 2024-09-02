@@ -1,32 +1,50 @@
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import React, { useState } from 'react';
+
+import React, { useState ,useRef} from 'react';
 import userIcon from '../Styles/images/user.png' 
 import '../Styles/style.css'
+import { Toast } from 'primereact/toast';
+import { InputText } from "primereact/inputtext";
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 
+
+
+ 
   const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const[errors,setErrors]=useState({});
+    const toast = useRef(null);
+    const apiUrl = process.env.REACT_APP_API_URL;
+    console.log("🚀 ~ Login ~ apiUrl:", apiUrl)
+    const Navigation = useNavigate();
 
   
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
       event.preventDefault();
       console.log('email:', email);
       console.log('Password:', password);
       let bugs ={};
       console.log("Login Form Submission . . .");
       setErrors(formValidate(email,password));
+      let request={email:email,password:password}
       
       if (formValidate(email,password))
       {
         console.log('Form submitted with data:');
-        // await axios.post(`${urll}/add`,InputVal).then(console.log("data sent "))
-        // Navigation("/all");
+
+        const response = await axios.post(`${apiUrl}/userDetails`,request);
+        console.log("🚀 ~ handleSubmit ~ response:", response.data)
+        if(response.data.id)
+        {
+        toast.current.show({severity:'success', summary: 'Success', life: 3000});
+        Navigation("/user",{ state: response.data });
+        }
         
       } 
       else 
       {
+         toast.current.show({severity:'error', summary: 'Validation Errors', life: 3000});
         console.log('Form has validation errors');
       }
     };
@@ -48,7 +66,9 @@ import '../Styles/style.css'
     }
   
     return (
-      <div className='parent'>
+     
+     <div className='parent'>
+       <Toast ref={toast} />
         <form onSubmit={handleSubmit}>
       <div className="imgcontainer">
         <img src={userIcon} alt="user" className="user" />
@@ -79,14 +99,15 @@ import '../Styles/style.css'
       
       </div>
 
-      
     </form>
-
+  
       </div>
+    
+
+
     );
    
   
 };
 export default Login;
-
 // eslint-disable-next-line
