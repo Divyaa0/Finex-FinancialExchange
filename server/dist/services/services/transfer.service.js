@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.transferService = void 0;
 const common_1 = require("@nestjs/common");
-const common_2 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
 const typeorm_2 = require("@nestjs/typeorm");
 const user_entity_1 = require("../../database/entities/user.entity");
@@ -24,29 +23,40 @@ let transferService = class transferService {
     }
     async transferFunds(transferDetails) {
         const { sender, reciever, amount } = transferDetails;
+        console.log("🚀 ~ transferService ~ transferFunds ~ transferDetails:", transferDetails);
         return await this.userTable.manager.transaction(async (entityManager) => {
             const fromUser = await entityManager.findOne(user_entity_1.UserInfo, {
                 where: { email: sender },
                 lock: { mode: 'pessimistic_write' },
             });
-            console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ fromUser:", fromUser);
+            console.log("🚀 ~ transferService ~ fromUser:", fromUser);
             const toUser = await entityManager.findOne(user_entity_1.UserInfo, {
                 where: { email: reciever },
                 lock: { mode: 'pessimistic_write' },
             });
-            console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ toUser:", toUser);
+            console.log("🚀 ~ transferService  ~ toUser:", toUser);
             if (!fromUser || !toUser) {
-                throw new common_2.BadRequestException('One of the users does not exist');
+                return {
+                    error: true,
+                    message: "One of the users does not exist"
+                };
             }
             if (fromUser.balance < amount) {
-                throw new common_2.BadRequestException('Insufficient balance');
+                return {
+                    error: true,
+                    message: "Insufficient balance"
+                };
             }
             fromUser.balance -= amount;
             toUser.balance += amount;
-            console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ fromUser:", fromUser);
-            console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ toUser:", toUser);
+            console.log("🚀  ~ fromUser:", fromUser);
+            console.log("🚀 ~ toUser:", toUser);
             await entityManager.save(fromUser);
             await entityManager.save(toUser);
+            return {
+                success: true,
+                message: 'Transaction Successfull'
+            };
         });
     }
     async getTransferHistory(transferDetails) {

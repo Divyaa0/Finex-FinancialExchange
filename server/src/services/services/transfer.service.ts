@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserInfo } from 'src/database/entities/user.entity';
-
+import { TransferDto } from '../dtos/makeTransfer.dto';
 
 @Injectable()
 export class transferService {
@@ -15,8 +15,9 @@ export class transferService {
   
 
 
-  async transferFunds(transferDetails): Promise<any> {
+  async transferFunds(transferDetails:TransferDto){
       const { sender, reciever, amount } = transferDetails;
+      console.log("🚀 ~ transferService ~ transferFunds ~ transferDetails:", transferDetails)
   
       return await this.userTable.manager.transaction(async (entityManager) => {
         // Lock the rows for the sender and receiver
@@ -24,33 +25,44 @@ export class transferService {
           where: { email: sender },
           lock: { mode: 'pessimistic_write' },
         });
-        console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ fromUser:", fromUser)
+        console.log("🚀 ~ transferService ~ fromUser:", fromUser)
   
         const toUser = await entityManager.findOne(UserInfo, {
           where: { email: reciever },
           lock: { mode: 'pessimistic_write' },
         });
-        console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ toUser:", toUser)
+        console.log("🚀 ~ transferService  ~ toUser:", toUser)
   
         if (!fromUser || !toUser) {
-          throw new BadRequestException('One of the users does not exist');
+          return {
+            error:true,
+            message:"One of the users does not exist"
+          }
         }
   
         if (fromUser.balance < amount) {
-          throw new BadRequestException('Insufficient balance');
+          return {
+            error:true,
+            message:"Insufficient balance"
+          }
         }
   
         fromUser.balance -= amount;
         toUser.balance += amount;
 
-        console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ fromUser:", fromUser)
-        console.log("🚀 ~ transferService ~ returnawaitthis.userTable.manager.transaction ~ toUser:", toUser)
+        console.log("🚀  ~ fromUser:", fromUser)
+        console.log("🚀 ~ toUser:", toUser)
 
 
-  
-        // Update both users' balances within the transaction
+     // Update both users' balances within the transaction
         await entityManager.save(fromUser);
         await entityManager.save(toUser);
+
+        return {
+          success:true,
+          message:'Transaction Successfull'
+        }
+           
       });
     }
    

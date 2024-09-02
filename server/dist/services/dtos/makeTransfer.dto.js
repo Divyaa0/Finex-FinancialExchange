@@ -18,12 +18,12 @@ __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], TransferDto.prototype, "senderEmail", void 0);
+], TransferDto.prototype, "sender", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], TransferDto.prototype, "recipientEmail", void 0);
+], TransferDto.prototype, "reciever", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsPositive)(),

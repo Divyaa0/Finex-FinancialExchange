@@ -3,11 +3,11 @@ import { IsEmail, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 export class TransferDto {
   @IsEmail()
   @IsNotEmpty()
-  senderEmail: string;
+  sender: string;
 
   @IsEmail()
   @IsNotEmpty()
-  recipientEmail: string;
+  reciever: string;
 
   @IsNumber()
   @IsPositive()
