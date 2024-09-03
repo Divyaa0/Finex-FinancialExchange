@@ -23,7 +23,7 @@ __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], TransferDto.prototype, "reciever", void 0);
+], TransferDto.prototype, "receiver", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsPositive)(),

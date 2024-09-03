@@ -1,5 +1,5 @@
 export declare class TransferDto {
     sender: string;
-    reciever: string;
+    receiver: string;
     amount: number;
 }

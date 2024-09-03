@@ -19,7 +19,6 @@
 
   // bullmq
 import { BullModule } from '@nestjs/bull';
-  import { transactionProcessing } from './services/services/transferProcessing';
   @Module({
     imports: [
       // database config
@@ -58,7 +57,7 @@ import { BullModule } from '@nestjs/bull';
 
     ],
     controllers: [AppController,userController,transferController],
-    providers: [AppService,transactionProcessing,
+    providers: [AppService,
       {
         provide: "IUser",
         useClass: userService,

@@ -7,7 +7,7 @@ export class TransferDto {
 
   @IsEmail()
   @IsNotEmpty()
-  reciever: string;
+  receiver: string;
 
   @IsNumber()
   @IsPositive()
