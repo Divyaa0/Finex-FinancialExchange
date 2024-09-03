@@ -6,13 +6,7 @@ export declare class transferService {
     private userTable;
     private txQueue;
     constructor(userTable: Repository<UserInfo>, txQueue: Queue);
-    transferFunds(transferDetails: TransferDto): Promise<{
-        error: boolean;
-        message: string;
-    } | {
-        success: boolean;
-        message: string;
-    }>;
+    transferFunds(transferDetails: TransferDto): Promise<void>;
     private getUserWithLock;
     private validateTransaction;
     private updateBalances;

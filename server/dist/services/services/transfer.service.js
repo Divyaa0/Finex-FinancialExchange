@@ -28,23 +28,41 @@ let transferService = class transferService {
         const { sender, receiver, amount } = transferDetails;
         console.log("🚀 ~ transferService ~ transferDetails:", transferDetails);
         const tx = await this.userTable.manager.transaction(async (entityManager) => {
-            const fromUser = await this.getUserWithLock(entityManager, sender);
-            const toUser = await this.getUserWithLock(entityManager, receiver);
-            const validationError = await this.validateTransaction(fromUser, toUser, amount);
-            if (validationError) {
-                console.log("🚀 ~ transactionProcessing ~ tx ~ validationError:", validationError);
-                return validationError;
+            const fromUser = await entityManager.findOne(user_entity_1.UserInfo, {
+                where: { email: sender },
+                lock: { mode: 'pessimistic_write' },
+            });
+            console.log("🚀 ~ transferService ~ fromUser:", fromUser);
+            const toUser = await entityManager.findOne(user_entity_1.UserInfo, {
+                where: { email: receiver },
+                lock: { mode: 'pessimistic_write' },
+            });
+            console.log("🚀 ~ transferService  ~ toUser:", toUser);
+            if (!fromUser || !toUser) {
+                return {
+                    error: true,
+                    message: "One of the users does not exist"
+                };
             }
-            await this.updateBalances(fromUser, toUser, amount, entityManager);
+            if (fromUser.balance < amount) {
+                return {
+                    error: true,
+                    message: "Insufficient balance"
+                };
+            }
+            console.log("🚀 Before ~ fromUser:", fromUser.balance);
+            console.log("🚀 ~Before toUser:", toUser.balance);
+            fromUser.balance -= amount;
+            toUser.balance += amount;
+            console.log("🚀 After ~ fromUser:", fromUser.balance);
+            console.log("🚀 ~After toUser:", toUser.balance);
             await entityManager.save(fromUser);
             await entityManager.save(toUser);
             return {
                 success: true,
-                message: 'Transaction Successful',
+                message: 'Transaction Successfull'
             };
         });
-        console.log("🚀 ~ transactionProcessing ~ tx ~ message: 'Transaction Successful': 'Transaction Successful");
-        return tx;
     }
     async getUserWithLock(entityManager, email) {
         const user = await entityManager.findOne(user_entity_1.UserInfo, {
@@ -54,8 +72,11 @@ let transferService = class transferService {
         console.log(`🚀 ~ getUserWithLock ~ user:`, user);
         return user;
     }
-    async validateTransaction(fromUser, toUser, amount) {
-        if (!fromUser || !toUser) {
+    async validateTransaction(sender, receiver, amount) {
+        console.log("🚀 ~ transferService ~ validateTransaction ~ amount:", amount);
+        console.log("🚀 ~ transferService ~ validateTransaction ~ receiver:", receiver);
+        console.log("🚀 ~ transferService ~ validateTransaction ~ sender:", sender.balance, "typeof -", typeof (sender.balance));
+        if (!sender || !receiver) {
             return {
                 error: true,
                 message: "One of the users does not exist",
@@ -67,7 +88,10 @@ let transferService = class transferService {
                 message: "Invalid Amount",
             };
         }
-        if (fromUser.balance < amount) {
+        let balance = sender.balance;
+        let senderBalance = parseFloat(balance);
+        console.log("🚀 ~ transferService ~ validateTransaction ~ senderBalance:", senderBalance, typeof (senderBalance));
+        if (sender.balance < amount) {
             return {
                 error: true,
                 message: "Insufficient balance",
@@ -75,9 +99,14 @@ let transferService = class transferService {
         }
         return null;
     }
-    async updateBalances(fromUser, toUser, amount, entityManager) {
-        fromUser.balance -= amount;
-        toUser.balance += amount;
+    async updateBalances(sender, receiver, amount, entityManager) {
+        console.log("🚀 ~ transferService ~ updateBalances ~ amount:", amount);
+        console.log("🚀 ~ transferService ~ updateBalances ~ receiver:", receiver);
+        console.log("🚀 ~ transferService ~ updateBalances ~ sender:", sender);
+        sender.balance -= amount;
+        receiver.balance += amount;
+        await entityManager.save(sender);
+        await entityManager.save(receiver);
     }
     async getTransferHistory(transferDetails) {
     }
