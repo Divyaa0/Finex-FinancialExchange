@@ -18,6 +18,8 @@ const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("./database/entities/user.entity");
 const transaction_entity_1 = require("./database/entities/transaction.entity");
 const role_entity_1 = require("./database/entities/role.entity");
+const bull_1 = require("@nestjs/bull");
+const transferProcessing_1 = require("./services/services/transferProcessing");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,9 +40,21 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([
                 user_entity_1.UserInfo
             ]),
+            bull_1.BullModule.forRoot({
+                redis: {
+                    host: 'localhost',
+                    port: 6379,
+                },
+            }),
+            bull_1.BullModule.registerQueue({
+                name: "transactionQueue",
+                defaultJobOptions: {
+                    attempts: 2
+                },
+            }),
         ],
         controllers: [app_controller_1.AppController, user_controller_1.userController, transfer_controller_1.transferController],
-        providers: [app_service_1.AppService,
+        providers: [app_service_1.AppService, transferProcessing_1.transactionProcessing,
             {
                 provide: "IUser",
                 useClass: user_service_1.userService,
