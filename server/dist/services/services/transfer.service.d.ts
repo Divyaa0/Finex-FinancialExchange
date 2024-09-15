@@ -1,14 +1,46 @@
 import { Repository } from 'typeorm';
 import { UserInfo } from 'src/database/entities/user.entity';
+import { Transaction } from 'src/database/entities/transaction.entity';
 import { TransferDto } from '../dtos/makeTransfer.dto';
+import { TransferHistoryFilterDto } from '../dtos/transferHistory.dto';
 import { Queue } from 'bullmq';
 export declare class transferService {
     private userTable;
+    private transactionTable;
     private txQueue;
-    constructor(userTable: Repository<UserInfo>, txQueue: Queue);
-    transferFunds(transferDetails: TransferDto): Promise<void>;
+    constructor(userTable: Repository<UserInfo>, transactionTable: Repository<Transaction>, txQueue: Queue);
+    transferFunds(transferDetails: TransferDto): Promise<{
+        error: boolean;
+        message: string;
+    } | {
+        success: boolean;
+        message: string;
+        error?: undefined;
+    } | {
+        success: boolean;
+        message: string;
+        description: string;
+    }>;
     private getUserWithLock;
     private validateTransaction;
     private updateBalances;
-    getTransferHistory(transferDetails: any): Promise<any>;
+    getTransferHistory(transferHistoryDetails: TransferHistoryFilterDto): Promise<{
+        error: boolean;
+        message: string;
+        success?: undefined;
+        details?: undefined;
+        fetchDetails?: undefined;
+    } | {
+        success: boolean;
+        details: Transaction[];
+        error?: undefined;
+        message?: undefined;
+        fetchDetails?: undefined;
+    } | {
+        success: boolean;
+        fetchDetails: Transaction[];
+        error?: undefined;
+        message?: undefined;
+        details?: undefined;
+    }>;
 }

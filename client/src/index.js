@@ -6,7 +6,9 @@ import reportWebVitals from './reportWebVitals';
 // queryClient
 import { QueryClientProvider,QueryClient } from 'react-query';
 import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
-import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
+import 'primereact/resources/primereact.min.css';  // PrimeReact core styles
+import 'primeicons/primeicons.css';  // PrimeReact icons
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient=new QueryClient();

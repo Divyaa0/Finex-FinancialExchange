@@ -17,6 +17,7 @@ export class Transaction {
   @JoinColumn({name:"reciever"})
   receiver: UserInfo;
 
+
   @Column()
   createdAt: Date;
 }

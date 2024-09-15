@@ -37,7 +37,7 @@ exports.AppModule = AppModule = __decorate([
                 autoLoadEntities: true
             }),
             typeorm_1.TypeOrmModule.forFeature([
-                user_entity_1.UserInfo
+                user_entity_1.UserInfo, transaction_entity_1.Transaction
             ]),
             bull_1.BullModule.forRoot({
                 redis: {

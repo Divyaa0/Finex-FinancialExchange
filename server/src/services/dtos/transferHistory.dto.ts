@@ -24,7 +24,4 @@ export class TransferHistoryFilterDto {
   @IsEmail()
   email?: string;
 
-  @IsOptional()
-  @IsString()
-  status?: string;
 }

@@ -6,8 +6,7 @@ import { Toast } from 'primereact/toast';
 import { InputText } from "primereact/inputtext";
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
-
-
+import { Button } from 'primereact/button';
 
  
   const Login = () => {
@@ -35,10 +34,24 @@ import { useNavigate } from 'react-router-dom';
 
         const response = await axios.post(`${apiUrl}/userDetails`,request);
         console.log("🚀 ~ handleSubmit ~ response:", response.data)
+        if(response.data.error)
+        {
+        toast.current.show({severity:"error", summary: response.data.message, life: 3000});
+
+        }
+        else
+        {
+        toast.current.show({severity:'success', summary: 'Login successful', life: 3000});
+
+        }
+
         if(response.data.id)
         {
-        toast.current.show({severity:'success', summary: 'Success', life: 3000});
+        setTimeout(()=>{
         Navigation("/user",{ state: response.data });
+
+        },1000)
+
         }
         
       } 
@@ -85,6 +98,8 @@ import { useNavigate } from 'react-router-dom';
           onChange={(e) => setEmail(e.target.value)}
         />
 
+        
+
         <label htmlFor="psw">Password</label>
         <input 
           type="password" 
@@ -95,7 +110,7 @@ import { useNavigate } from 'react-router-dom';
           onChange={(e) => setPassword(e.target.value)}
         />
         
-        <button type="submit">Login</button>
+        <Button label="Login" />
       
       </div>
 

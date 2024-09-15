@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.transferController = void 0;
 const common_1 = require("@nestjs/common");
 const makeTransfer_dto_1 = require("../services/dtos/makeTransfer.dto");
-const transferHistory_dto_1 = require("../services/dtos/transferHistory.dto");
 let transferController = class transferController {
     constructor(ITransfer) {
         this.ITransfer = ITransfer;
@@ -25,7 +24,11 @@ let transferController = class transferController {
         console.log("🚀 ~ transferController ~ transferFunds ~ response:", response);
         return response;
     }
-    getTransferHistory(filterDto) {
+    async TransferHistory(filterDto) {
+        console.log("sdfg");
+        const response = await this.ITransfer.getTransferHistory(filterDto);
+        console.log("🚀 ~ transferController ~ getTransferHistory ~ response:", response);
+        return response;
     }
 };
 exports.transferController = transferController;
@@ -37,12 +40,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], transferController.prototype, "transferFunds", null);
 __decorate([
-    (0, common_1.Get)('transferHistory'),
-    __param(0, (0, common_1.Query)()),
+    (0, common_1.Post)('transferHistory'),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [transferHistory_dto_1.TransferHistoryFilterDto]),
-    __metadata("design:returntype", void 0)
-], transferController.prototype, "getTransferHistory", null);
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], transferController.prototype, "TransferHistory", null);
 exports.transferController = transferController = __decorate([
     (0, common_1.Controller)(),
     __param(0, (0, common_1.Inject)('ITransfer')),

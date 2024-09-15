@@ -1,13 +1,20 @@
-body, html {
+/* body, html {
     height: 100%;
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #f1f1f1;
+  } */
+
+  .parent,.userCard,.transferForm{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f1f1;
   }
  form{
-    width: 50%;
     margin: auto;
 
  }
@@ -23,11 +30,11 @@ input[type=text], input[type=password] ,input[type=number]{
   
   button {
     /* background-color:#2B694A; */
-    background-color:rgb(61,80,182);
-    color: white;
+    /* background-color:rgb(61,80,182); */
+    /* color: white; */
     padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
+    margin: 3px 0;
+   
     cursor: pointer;
     width: 100%;
   }
@@ -69,4 +76,10 @@ input[type=text], input[type=password] ,input[type=number]{
     .cancelbtn {
        width: 100%;
     }
+  }
+
+  .userCrdDetails
+  {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
   }

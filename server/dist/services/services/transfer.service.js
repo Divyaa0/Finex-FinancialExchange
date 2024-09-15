@@ -17,65 +17,66 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
 const typeorm_2 = require("@nestjs/typeorm");
 const user_entity_1 = require("../../database/entities/user.entity");
+const transaction_entity_1 = require("../../database/entities/transaction.entity");
 const bullmq_1 = require("@nestjs/bullmq");
 const bullmq_2 = require("bullmq");
+const Decimal = require('decimal.js');
+const typeorm_3 = require("typeorm");
 let transferService = class transferService {
-    constructor(userTable, txQueue) {
+    constructor(userTable, transactionTable, txQueue) {
         this.userTable = userTable;
+        this.transactionTable = transactionTable;
         this.txQueue = txQueue;
     }
     async transferFunds(transferDetails) {
         const { sender, receiver, amount } = transferDetails;
-        console.log("🚀 ~ transferService ~ transferDetails:", transferDetails);
+        console.log("🚀 ~transferDetails:", transferDetails);
         const tx = await this.userTable.manager.transaction(async (entityManager) => {
-            const fromUser = await entityManager.findOne(user_entity_1.UserInfo, {
-                where: { email: sender },
-                lock: { mode: 'pessimistic_write' },
-            });
-            console.log("🚀 ~ transferService ~ fromUser:", fromUser);
-            const toUser = await entityManager.findOne(user_entity_1.UserInfo, {
-                where: { email: receiver },
-                lock: { mode: 'pessimistic_write' },
-            });
-            console.log("🚀 ~ transferService  ~ toUser:", toUser);
-            if (!fromUser || !toUser) {
+            const senderAccount = await this.getUserWithLock(entityManager, sender);
+            console.log("🚀 ~ transferService ~ tx ~ senderAccount:", senderAccount);
+            const receiverAccount = await this.getUserWithLock(entityManager, receiver);
+            console.log("🚀 ~ transferService ~ tx ~ receiverAccount:", receiverAccount);
+            const validateTransactionDetails = await this.validateTransaction(senderAccount, receiverAccount, amount);
+            console.log("🚀 ~ transferService ~ tx ~ validateTransactionDetails:", validateTransactionDetails);
+            if (validateTransactionDetails && validateTransactionDetails.error) {
+                return validateTransactionDetails;
+            }
+            const makeTransfer = await this.updateBalances(senderAccount, receiverAccount, amount, entityManager);
+            console.log("🚀 ~ transferService ~ tx ~ makeTransfer:", makeTransfer);
+            if (makeTransfer.error) {
+                return makeTransfer;
+            }
+            else {
+                const newTransaction = this.transactionTable.create({
+                    amount,
+                    createdAt: new Date(),
+                    sender: senderAccount,
+                    receiver: receiverAccount,
+                });
+                await entityManager.save(transaction_entity_1.Transaction, newTransaction);
                 return {
-                    error: true,
-                    message: "One of the users does not exist"
+                    success: true,
+                    message: 'Transaction Successful',
+                    description: `Amount ${amount} has been transferred from ${sender} to ${receiver}`
                 };
             }
-            if (fromUser.balance < amount) {
-                return {
-                    error: true,
-                    message: "Insufficient balance"
-                };
-            }
-            console.log("🚀 Before ~ fromUser:", fromUser.balance);
-            console.log("🚀 ~Before toUser:", toUser.balance);
-            fromUser.balance -= amount;
-            toUser.balance += amount;
-            console.log("🚀 After ~ fromUser:", fromUser.balance);
-            console.log("🚀 ~After toUser:", toUser.balance);
-            await entityManager.save(fromUser);
-            await entityManager.save(toUser);
-            return {
-                success: true,
-                message: 'Transaction Successfull'
-            };
         });
+        return tx;
     }
     async getUserWithLock(entityManager, email) {
         const user = await entityManager.findOne(user_entity_1.UserInfo, {
             where: { email },
             lock: { mode: 'pessimistic_write' },
         });
-        console.log(`🚀 ~ getUserWithLock ~ user:`, user);
         return user;
     }
     async validateTransaction(sender, receiver, amount) {
-        console.log("🚀 ~ transferService ~ validateTransaction ~ amount:", amount);
-        console.log("🚀 ~ transferService ~ validateTransaction ~ receiver:", receiver);
-        console.log("🚀 ~ transferService ~ validateTransaction ~ sender:", sender.balance, "typeof -", typeof (sender.balance));
+        console.log("🚀validateTransaction amount:", amount);
+        console.log("🚀validateTransaction receiver:", receiver);
+        let senderBalance = new Decimal(sender.balance);
+        console.log("🚀   senderBalance:", senderBalance);
+        let receiverBalance = new Decimal(receiver.balance);
+        console.log(" receiverBalance:", receiverBalance);
         if (!sender || !receiver) {
             return {
                 error: true,
@@ -88,9 +89,6 @@ let transferService = class transferService {
                 message: "Invalid Amount",
             };
         }
-        let balance = sender.balance;
-        let senderBalance = parseFloat(balance);
-        console.log("🚀 ~ transferService ~ validateTransaction ~ senderBalance:", senderBalance, typeof (senderBalance));
         if (sender.balance < amount) {
             return {
                 error: true,
@@ -99,24 +97,86 @@ let transferService = class transferService {
         }
         return null;
     }
-    async updateBalances(sender, receiver, amount, entityManager) {
-        console.log("🚀 ~ transferService ~ updateBalances ~ amount:", amount);
-        console.log("🚀 ~ transferService ~ updateBalances ~ receiver:", receiver);
-        console.log("🚀 ~ transferService ~ updateBalances ~ sender:", sender);
-        sender.balance -= amount;
-        receiver.balance += amount;
-        await entityManager.save(sender);
-        await entityManager.save(receiver);
+    async updateBalances(senderAccount, receiverAccount, amount, entityManager) {
+        try {
+            let senderBalance = new Decimal(senderAccount.balance);
+            console.log("🚀  BEFORE senderBalance:", senderBalance);
+            let receiverBalance = new Decimal(receiverAccount.balance);
+            console.log("🚀BEFORE receiverBalance:", receiverBalance);
+            senderBalance = senderBalance.minus(amount);
+            receiverBalance = receiverBalance.plus(amount);
+            senderAccount.balance = senderBalance.toString();
+            receiverAccount.balance = receiverBalance.toString();
+            await entityManager.save(senderAccount);
+            await entityManager.save(receiverAccount);
+            console.log("🚀 After ~ senderBalance:", senderAccount.balance);
+            console.log("🚀 ~After receiverBalance:", receiverAccount.balance);
+            return {
+                success: true,
+                message: 'Transaction Successfull'
+            };
+        }
+        catch (error) {
+            console.log("🚀 ~ transferService ~ updateBalances ~ error:", error);
+            return {
+                error: true,
+                message: 'Error in making transaction'
+            };
+        }
     }
-    async getTransferHistory(transferDetails) {
+    async getTransferHistory(transferHistoryDetails) {
+        const { email, startDate, endDate, minAmount, maxAmount } = transferHistoryDetails;
+        console.log("🚀 ~ transferService ~ getTransferHistory ~ transferHistoryDetails:", transferHistoryDetails);
+        if (email) {
+            const findUser = await this.userTable.find({ where: { email: email } });
+            console.log("🚀 ~ transferService ~ getTransferHistory ~ user:", findUser);
+            if (!findUser) {
+                return {
+                    error: true,
+                    message: 'No user found with this email'
+                };
+            }
+            const userId = findUser[0].id;
+            const fetchDetails = await this.transactionTable.find({
+                where: { sender: { id: userId } },
+                relations: ['sender', 'receiver']
+            });
+            console.log("🚀 ~ transferService ~ getTransferHistory ~ fetchDetails:", fetchDetails);
+            return {
+                success: true,
+                details: fetchDetails
+            };
+        }
+        if (startDate && endDate) {
+        }
+        if (minAmount && maxAmount) {
+            const fetchDetails = await this.transactionTable.find({
+                where: {
+                    amount: (0, typeorm_3.Between)(minAmount, maxAmount),
+                },
+                relations: ['sender', 'receiver'],
+            });
+            if (fetchDetails.length === 0) {
+                return {
+                    error: true,
+                    message: 'No Transaction found within specified range',
+                };
+            }
+            return {
+                success: true,
+                fetchDetails: fetchDetails
+            };
+        }
     }
 };
 exports.transferService = transferService;
 exports.transferService = transferService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_2.InjectRepository)(user_entity_1.UserInfo)),
-    __param(1, (0, bullmq_1.InjectQueue)("transactionQueue")),
+    __param(1, (0, typeorm_2.InjectRepository)(transaction_entity_1.Transaction)),
+    __param(2, (0, bullmq_1.InjectQueue)("transactionQueue")),
     __metadata("design:paramtypes", [typeorm_1.Repository,
+        typeorm_1.Repository,
         bullmq_2.Queue])
 ], transferService);
 //# sourceMappingURL=transfer.service.js.map

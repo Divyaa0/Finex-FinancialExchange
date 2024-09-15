@@ -18,13 +18,15 @@ export class transferController  {
     // Implementation here
   }
 
-  @Get('transferHistory')
-  getTransferHistory(@Query() filterDto: TransferHistoryFilterDto) {
+  @Post('transferHistory')
+  async TransferHistory(@Body() filterDto: any) 
+  {
     // Implementation here
+    console.log("sdfg")
+    const response=await this.ITransfer.getTransferHistory(filterDto)
+    console.log("🚀 ~ transferController ~ getTransferHistory ~ response:", response)
+    return response
   }
 
-//   @Get('statuses')
-//   getTransferStatuses() {
-//     // Implementation here
-//   }
+
 }

@@ -51,7 +51,6 @@ let userService = class userService {
             console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
             if (userDetails.role.name !== "admin") {
                 console.log("🚀 ~ userService ~ getUserDetails ~ Does not have admin access");
-                const allUsers = await this.userTable.find();
                 return {
                     error: true,
                     message: "User does not have admin access",

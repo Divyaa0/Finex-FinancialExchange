@@ -4,5 +4,4 @@ export declare class TransferHistoryFilterDto {
     minAmount?: number;
     maxAmount?: number;
     email?: string;
-    status?: string;
 }

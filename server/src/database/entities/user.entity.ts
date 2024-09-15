@@ -24,11 +24,8 @@ export class UserInfo
   role: Role;
   
   @OneToMany(() => Transaction, (transaction) => transaction.sender)
-  @JoinColumn({name:"sent_transactions"})
   sentTransactions: Transaction[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.receiver)
-  @JoinColumn({name:"role_id"})
-  @JoinColumn({name:"recieved_transactions"})
   receivedTransactions: Transaction[];
 }

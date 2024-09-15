@@ -41,9 +41,4 @@ __decorate([
     (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], TransferHistoryFilterDto.prototype, "email", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], TransferHistoryFilterDto.prototype, "status", void 0);
 //# sourceMappingURL=transferHistory.dto.js.map

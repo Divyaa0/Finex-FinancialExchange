@@ -43,13 +43,10 @@ __decorate([
 ], UserInfo.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => transaction_entity_1.Transaction, (transaction) => transaction.sender),
-    (0, typeorm_1.JoinColumn)({ name: "sent_transactions" }),
     __metadata("design:type", Array)
 ], UserInfo.prototype, "sentTransactions", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => transaction_entity_1.Transaction, (transaction) => transaction.receiver),
-    (0, typeorm_1.JoinColumn)({ name: "role_id" }),
-    (0, typeorm_1.JoinColumn)({ name: "recieved_transactions" }),
     __metadata("design:type", Array)
 ], UserInfo.prototype, "receivedTransactions", void 0);
 exports.UserInfo = UserInfo = __decorate([

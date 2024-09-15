@@ -3,8 +3,10 @@ import Login from './Components/login';
 import UserInfo from './Components/userDetails';
 import Transfer from './Components/Transfer';
 import {BrowserRouter,Routes,Route} from 'react-router-dom';
+
 function App() {
   return (
+
     <div className="App">
   
       <BrowserRouter>

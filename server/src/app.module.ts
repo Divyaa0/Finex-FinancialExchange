@@ -35,7 +35,7 @@ import { BullModule } from '@nestjs/bull';
 
       }),
       TypeOrmModule.forFeature([
-        UserInfo
+        UserInfo,Transaction
       ]),
 
       // BULLMQ
