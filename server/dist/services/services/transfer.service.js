@@ -137,14 +137,19 @@ let transferService = class transferService {
                 };
             }
             const userId = findUser[0].id;
-            const fetchDetails = await this.transactionTable.find({
+            const SendDetails = await this.transactionTable.find({
                 where: { sender: { id: userId } },
                 relations: ['sender', 'receiver']
             });
-            console.log("🚀 ~ transferService ~ getTransferHistory ~ fetchDetails:", fetchDetails);
+            console.log("🚀 ~ transferService ~ getTransferHistory ~ fetchDetails:", SendDetails);
+            const receiveDetails = await this.transactionTable.find({
+                where: { receiver: { id: userId } },
+                relations: ['sender', 'receiver']
+            });
             return {
                 success: true,
-                details: fetchDetails
+                sentTx: SendDetails,
+                receivedTx: receiveDetails,
             };
         }
         if (startDate && endDate) {

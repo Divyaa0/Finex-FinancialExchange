@@ -15,6 +15,8 @@ import { Button } from 'primereact/button';
     const[errors,setErrors]=useState({});
     const toast = useRef(null);
     const apiUrl = process.env.REACT_APP_API_URL;
+    const isAdmin=process.env.REACT_APP_ADMIN_ID;
+    console.log("🚀 ~ Login ~ isAdmin:", isAdmin)
     console.log("🚀 ~ Login ~ apiUrl:", apiUrl)
     const Navigation = useNavigate();
 
@@ -34,6 +36,8 @@ import { Button } from 'primereact/button';
 
         const response = await axios.post(`${apiUrl}/userDetails`,request);
         console.log("🚀 ~ handleSubmit ~ response:", response.data)
+        const checkId=response.data.role.id;
+        console.log("🚀 ~ handleSubmit ~ checkId:", checkId)
         if(response.data.error)
         {
         toast.current.show({severity:"error", summary: response.data.message, life: 3000});
@@ -45,13 +49,22 @@ import { Button } from 'primereact/button';
 
         }
 
-        if(response.data.id)
+        if(checkId == isAdmin )
         {
+          console.log("===========ADMIN============")
         setTimeout(()=>{
         Navigation("/user",{ state: response.data });
 
         },1000)
 
+        }
+        else
+        {
+          setTimeout(()=>{
+            Navigation("/user",{ state: response.data });
+    
+            },1000)
+    
         }
         
       } 

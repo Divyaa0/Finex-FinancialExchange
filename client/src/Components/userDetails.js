@@ -40,6 +40,27 @@ const UserInfo = () => {
     const data =
       Navigation("/transfer", { state: email })
   }
+  const TransferHistory=()=>
+  {
+    const data =
+      Navigation("/transferHistory", { state: email })
+
+  }
+  const getAllUsers=()=>
+  {
+    const userFilteredData=userData[0];
+    console.log("🚀 ~ UserInfo ~ userFilteredData:", userFilteredData)
+    Navigation('/admin' , {state : userFilteredData})
+  }
+
+
+
+
+
+
+
+
+  // dialog box content
 
   const header = (
     <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />
@@ -69,8 +90,13 @@ const UserInfo = () => {
 
 
         <Button label="Transfer" icon="pi pi-check"  onClick={Transfer}   />
-        <Button label="Get Transaction History" icon="pi  pi-search"   />
-        <Button label="Close" icon="pi pi-times"  onClick={handleClose} severity="danger"   />
+
+        {location.state.role.name == 'admin' ?  
+        <Button label="Check All Users" icon="pi  pi-search" onClick={getAllUsers}  />
+        : ''}
+
+        <Button label="Get Transaction History" icon="pi  pi-search" onClick={TransferHistory}  />
+        <Button label="Close" icon="pi pi-times"  onClick={handleClose} severity="danger"/>
 
 
 

@@ -2,7 +2,10 @@ import './App.css';
 import Login from './Components/login';
 import UserInfo from './Components/userDetails';
 import Transfer from './Components/Transfer';
+import TransferHistory from './Components/TransferHistory';
 import {BrowserRouter,Routes,Route} from 'react-router-dom';
+import AdminDetails from './Components/adminDashboard';
+
 
 function App() {
   return (
@@ -13,7 +16,11 @@ function App() {
       <Routes>
         <Route path='/' element={<Login/>}></Route>
         <Route path='/user' element={<UserInfo/>}></Route>
+        <Route path='/admin' element={<AdminDetails/>}></Route>
+
         <Route path='/transfer' element={<Transfer/>}></Route>
+        <Route path='/transferHistory' element={<TransferHistory/>}></Route>
+
 
 
         {/* <Route path='/update/:id' element={<UpdateUser/>}></Route>

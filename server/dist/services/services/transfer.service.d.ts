@@ -28,11 +28,13 @@ export declare class transferService {
         error: boolean;
         message: string;
         success?: undefined;
-        details?: undefined;
+        sentTx?: undefined;
+        receivedTx?: undefined;
         fetchDetails?: undefined;
     } | {
         success: boolean;
-        details: Transaction[];
+        sentTx: Transaction[];
+        receivedTx: Transaction[];
         error?: undefined;
         message?: undefined;
         fetchDetails?: undefined;
@@ -41,6 +43,7 @@ export declare class transferService {
         fetchDetails: Transaction[];
         error?: undefined;
         message?: undefined;
-        details?: undefined;
+        sentTx?: undefined;
+        receivedTx?: undefined;
     }>;
 }

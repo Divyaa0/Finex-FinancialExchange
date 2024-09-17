@@ -12,7 +12,6 @@ import { Dialog } from 'primereact/dialog';
 
 const Transfer = () => {
   const location = useLocation();
-  // console.log("🚀 ~ Transfer ~ location:", location)
   const apiUrl = process.env.REACT_APP_API_URL;
   const toast = useRef(null);
 
