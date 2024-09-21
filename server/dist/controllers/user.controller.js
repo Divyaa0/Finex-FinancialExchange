@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userController = void 0;
 const common_1 = require("@nestjs/common");
+const jwtGuards_1 = require("../services/auth/jwtGuards");
 let userController = class userController {
     constructor(IUser) {
         this.IUser = IUser;
@@ -26,6 +27,10 @@ let userController = class userController {
         const response = await this.IUser.getUserDetails(request);
         return response;
     }
+    async validateUser(request) {
+        const response = await this.IUser.validateUserDetails(request);
+        return response;
+    }
 };
 exports.userController = userController;
 __decorate([
@@ -36,12 +41,20 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], userController.prototype, "getAllBalances", null);
 __decorate([
+    (0, common_1.UseGuards)(jwtGuards_1.AuthGuard),
     (0, common_1.Post)('/userDetails'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], userController.prototype, "getUserDetails", null);
+__decorate([
+    (0, common_1.Post)('/login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], userController.prototype, "validateUser", null);
 exports.userController = userController = __decorate([
     (0, common_1.Controller)(),
     __param(0, (0, common_1.Inject)('IUser')),

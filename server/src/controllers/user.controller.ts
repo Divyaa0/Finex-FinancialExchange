@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Inject, Param ,Post} from '@nestjs/common';
+import { Body, Controller, Get, Inject, UseGuards ,Post,Req} from '@nestjs/common';
 import { dataSourceOptions } from 'src/database/dataSource';
 import { DataSource } from 'typeorm';
 import { UserInfo } from 'src/database/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IUser } from 'src/services/interface/iuser.interface';
+import { Request } from 'express';
+import { AuthGuard } from 'src/services/auth/jwtGuards';
 
 @Controller()
 export class userController {
@@ -21,12 +23,21 @@ export class userController {
    
   }
 
-
+  @UseGuards(AuthGuard)
   @Post('/userDetails')
-  async getUserDetails(@Body() request) 
+  async getUserDetails(@Req() request: Request ) 
   {
 
    const response= await this.IUser.getUserDetails(request)
+   return response
+
+    // Implementation here
+  }
+
+  @Post('/login')
+  async validateUser(@Body() request) 
+  {
+   const response= await this.IUser.validateUserDetails(request)
    return response
 
     // Implementation here

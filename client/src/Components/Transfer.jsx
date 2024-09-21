@@ -3,17 +3,18 @@ import React, { useState, useRef } from 'react';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { InputNumber } from 'primereact/inputnumber';
-import { InputText } from 'primereact/inputtext';
 import axios from 'axios';
 import { Dialog } from 'primereact/dialog';
+import { useSelector } from 'react-redux';
 
 const Transfer = () => {
-  const location = useLocation();
   const apiUrl = process.env.REACT_APP_API_URL;
   const toast = useRef(null);
+
+  const userInfo=useSelector((state)=>state.user);
+  console.log("🚀 ~ Transfer ~ userInfo:", userInfo)
+  const isEmpty= (userData)=> Object.keys(userData).length===0
 
   const Navigation = useNavigate();
   const [email, setEmail] = useState('');
@@ -22,9 +23,8 @@ const Transfer = () => {
   const [errors, setErrors] = useState({});
 
   const handleClose = async () => {
-    Navigation('/')
+    Navigation('/user')
   }
-
 
   const handleTransfer = async (event) => {
     event.preventDefault();
@@ -42,10 +42,11 @@ const Transfer = () => {
   };
   const makeTransfer=async()=>
   {
-    const request={sender:location.state.email , receiver:email , amount:amount};
+
+    const request={sender:userInfo.email , receiver:email , amount:amount};
     const makeTransferCall=await axios.post(`${apiUrl}/transfer`,request);
     const transferResponse=makeTransferCall.data
-    if(transferResponse && transferResponse.success==true)
+    if(transferResponse && transferResponse.success===true)
     {
       console.log("successful tx")
       setTransferConfirmDialogBox(false); // Show confirmation dialog
@@ -86,7 +87,11 @@ const Transfer = () => {
 
   return (
     <div className='transferForm'>
-      <Card title={'Transfer Funds'}>
+     {
+      !isEmpty(userInfo)
+      ?
+      (
+        <Card title={'Transfer Funds'}>
         <Toast ref={toast} />
 
         <form  onSubmit={handleTransfer}>
@@ -127,8 +132,14 @@ const Transfer = () => {
 
 
         </form>
-      </Card>
+      </Card> 
+      )
+      : 
+      <>
+      <strong>No Data Available</strong>
+      </>
 
+     }
     </div>
 
 

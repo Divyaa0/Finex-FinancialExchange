@@ -3,22 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-// queryClient
-import { QueryClientProvider,QueryClient } from 'react-query';
-import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
-// import store from './app/store'
-// import { Provider } from 'react-redux'
+import { store } from './Components/redux/store';
+import { Provider } from 'react-redux'
+
+import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import 'primereact/resources/primereact.min.css';  
 import 'primeicons/primeicons.css';   
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const queryClient=new QueryClient();
 root.render(
   <React.StrictMode>
     <PrimeReactProvider>
-    {/* <Provider store={store}> */}
+    <Provider store={store}>
              <App />
-    {/* </Provider> */}
+      </Provider>
         </PrimeReactProvider>
   </React.StrictMode>
 

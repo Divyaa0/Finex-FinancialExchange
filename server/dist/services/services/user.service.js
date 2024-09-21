@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const user_entity_1 = require("../../database/entities/user.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const jwt_1 = require("@nestjs/jwt");
 let userService = class userService {
-    constructor(userTable) {
+    constructor(userTable, jwtService) {
         this.userTable = userTable;
+        this.jwtService = jwtService;
     }
     async getAllBalances(request) {
         try {
@@ -73,6 +75,28 @@ let userService = class userService {
         }
     }
     async getUserDetails(request) {
+        const user = request['user'];
+        console.log("🚀 ~ userService ~ getUserDetails ~ user:", user);
+        const email = user.email;
+        const userDetails = await this.userTable.findOne({
+            relations: {
+                role: true,
+            },
+            where: { email: email }
+        });
+        if (userDetails) {
+            console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
+            return userDetails;
+        }
+        else {
+            console.error("🚀 ~ userService ~ getUserDetails ~ Invalid email");
+            return {
+                error: true,
+                message: "Invalid email "
+            };
+        }
+    }
+    async validateUserDetails(request) {
         const { email, password } = request;
         console.log("🚀 ~ userService ~ getUserDetails ~ email:", email);
         const userDetails = await this.userTable.findOne({
@@ -83,7 +107,11 @@ let userService = class userService {
         });
         if (userDetails && userDetails.password === password) {
             console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
-            return userDetails;
+            const payload = { email: userDetails.email, name: userDetails.name };
+            console.log("🚀 ~ userService ~ validateUserDetails ~ payload:", payload);
+            return {
+                accesstoken: await this.jwtService.signAsync(payload),
+            };
         }
         else {
             console.error("🚀 ~ userService ~ getUserDetails ~ Invalid email or password");
@@ -98,6 +126,7 @@ exports.userService = userService;
 exports.userService = userService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.UserInfo)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        jwt_1.JwtService])
 ], userService);
 //# sourceMappingURL=user.service.js.map

@@ -19,12 +19,20 @@ const user_entity_1 = require("./database/entities/user.entity");
 const transaction_entity_1 = require("./database/entities/transaction.entity");
 const role_entity_1 = require("./database/entities/role.entity");
 const bull_1 = require("@nestjs/bull");
+const jwt_1 = require("@nestjs/jwt");
+const constant_1 = require("./services/auth/constant");
+const jwtGuards_1 = require("./services/auth/jwtGuards");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            jwt_1.JwtModule.register({
+                global: true,
+                secret: constant_1.jwtConstant.secret,
+                signOptions: { expiresIn: '60d' },
+            }),
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',
                 host: 'localhost',
@@ -53,7 +61,7 @@ exports.AppModule = AppModule = __decorate([
             }),
         ],
         controllers: [app_controller_1.AppController, user_controller_1.userController, transfer_controller_1.transferController],
-        providers: [app_service_1.AppService,
+        providers: [app_service_1.AppService, jwtGuards_1.AuthGuard,
             {
                 provide: "IUser",
                 useClass: user_service_1.userService,
