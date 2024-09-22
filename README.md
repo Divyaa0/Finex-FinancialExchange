@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Finex-FinancialExchange
-=======
 # Project Name
 finex - financial Exchange
 
@@ -62,4 +59,3 @@ Transaction History: View past transactions.
 Transfer Money: Users can transfer money between accounts.
 Admin: Admins can view and manage all users and their transaction history.
 
->>>>>>> 7762ee3d6f3774bf3b984c0af8f7953ba2967f7a
