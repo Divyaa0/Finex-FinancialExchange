@@ -1,8 +1,8 @@
-import { Controller, Post, Get, Body, Query,Inject } from '@nestjs/common';
+import { Controller, Post, Get, Body, Req,Inject,UseGuards } from '@nestjs/common';
 import { TransferDto } from 'src/services/dtos/makeTransfer.dto';
 import { TransferHistoryFilterDto } from 'src/services/dtos/transferHistory.dto';
 import { ITransfer } from 'src/services/interface/itransfer.interface';
-
+import { AuthGuard } from 'src/services/auth/jwtGuards';
 @Controller()
 export class transferController  {
 
@@ -10,6 +10,7 @@ export class transferController  {
     @Inject('ITransfer')public readonly ITransfer:ITransfer
     ){}
 
+  @UseGuards(AuthGuard)
   @Post('transfer')
   async transferFunds(@Body() transferDto: TransferDto) {
     const response=await this.ITransfer.transferFunds(transferDto)
@@ -18,12 +19,13 @@ export class transferController  {
     // Implementation here
   }
 
+  
+  @UseGuards(AuthGuard)
   @Post('transferHistory')
-  async TransferHistory(@Body() filterDto: any) 
+  async TransferHistory(@Req() filterDto) 
   {
     // Implementation here
-    console.log("sdfg")
-    const response=await this.ITransfer.getTransferHistory(filterDto)
+    const response=await this.ITransfer.getTransferHistory( filterDto)
     console.log("🚀 ~ transferController ~ getTransferHistory ~ response:", response)
     return response
   }

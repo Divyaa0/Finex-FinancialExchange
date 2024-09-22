@@ -18,46 +18,45 @@ export class userService implements IUser {
 
   async getAllBalances(request): Promise<any> {
     try {
-      const { email, password } = request;
-      console.log("🚀 ~ userService ~ getUserDetails ~ email:", email);
+      // const { email, password } = request;
+      // console.log("🚀 ~ userService ~ getUserDetails ~ email:", email);
 
-      // Logic to retrieve user details
-      const userDetails = await this.userTable.findOne({
-        relations: {
-          role: true,
-        },
-        where: {
-          email: email,
-        },
-      });
+      // const userDetails = await this.userTable.findOne({
+      //   relations: {
+      //     role: true,
+      //   },
+      //   where: {
+      //     email: email,
+      //   },
+      // });
 
-      console.log("🚀 ~ userService ~ getAllBalances ~ userDetails:", userDetails);
+      // console.log("🚀 ~ userService ~ getAllBalances ~ userDetails:", userDetails);
 
-      if (!userDetails) {
-        console.error("🚀 ~ userService ~ getUserDetails ~ User not found");
-        return {
-          error: true,
-          message: "User not found",
-        };
-      }
+      // if (!userDetails) {
+      //   console.error("🚀 ~ userService ~ getUserDetails ~ User not found");
+      //   return {
+      //     error: true,
+      //     message: "User not found",
+      //   };
+      // }
 
-      if (userDetails.password !== password) {
-        console.error("🚀 ~ userService ~ getUserDetails ~ Invalid email or password");
-        return {
-          error: true,
-          message: "Invalid email or password",
-        };
-      }
+      // if (userDetails.password !== password) {
+      //   console.error("🚀 ~ userService ~ getUserDetails ~ Invalid email or password");
+      //   return {
+      //     error: true,
+      //     message: "Invalid email or password",
+      //   };
+      // }
 
-      console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
+      // console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
 
-      if (userDetails.role.name !== "admin") {
-        console.log("🚀 ~ userService ~ getUserDetails ~ Does not have admin access");
-        return {
-          error: true,
-          message: "User does not have admin access",
-        };
-      }
+      // if (userDetails.role.name !== "admin") {
+      //   console.log("🚀 ~ userService ~ getUserDetails ~ Does not have admin access");
+      //   return {
+      //     error: true,
+      //     message: "User does not have admin access",
+      //   };
+      // }
       const allUserDetails = await this.userTable.find();
       console.log("🚀 ~ userService ~ allUserDetails:", allUserDetails)
 

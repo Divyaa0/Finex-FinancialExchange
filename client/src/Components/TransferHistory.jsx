@@ -16,15 +16,16 @@ const TransferHistory = () => {
 
     const apiUrl = process.env.REACT_APP_API_URL;
     const location = useLocation();
-    console.log("🚀 ~ TransferHistory ~ location:", location);
+    console.log("🚀 ~ TransferHistory ~ location:", location.state)
 
     useEffect(() => {
         const fetchTransferHistory = async () => {
             try {
-                const email = location.state;
-                console.log("🚀 ~ TransferHistory ~ email:", email);
-
-                const response = await axios.post(`${apiUrl}/transferHistory`, { email });
+                
+                const data = location.state; 
+                console.log("🚀 ~ fetchTransferHistory ~ data:", data)
+                const fetchTokenFromLoaclStorage=localStorage.getItem("accessToken")
+                const response = await axios.post(`${apiUrl}/transferHistory`, {data},{headers:{accessToken:fetchTokenFromLoaclStorage}});
                 const sentTx = response.data.sentTx;
                 const receivedTx = response.data.receivedTx;
 

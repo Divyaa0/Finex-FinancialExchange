@@ -14,8 +14,8 @@ export class userController {
   @Inject('IUser')public readonly IUser:IUser
   )
   {}
-
-  @Post('balances')
+  @UseGuards(AuthGuard)
+  @Get('balances')
   async getAllBalances(@Body() request) 
   {
     const response=await this.IUser.getAllBalances(request)

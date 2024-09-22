@@ -34,7 +34,8 @@ let userController = class userController {
 };
 exports.userController = userController;
 __decorate([
-    (0, common_1.Post)('balances'),
+    (0, common_1.UseGuards)(jwtGuards_1.AuthGuard),
+    (0, common_1.Get)('balances'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

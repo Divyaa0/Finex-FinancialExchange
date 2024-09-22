@@ -25,39 +25,6 @@ let userService = class userService {
     }
     async getAllBalances(request) {
         try {
-            const { email, password } = request;
-            console.log("🚀 ~ userService ~ getUserDetails ~ email:", email);
-            const userDetails = await this.userTable.findOne({
-                relations: {
-                    role: true,
-                },
-                where: {
-                    email: email,
-                },
-            });
-            console.log("🚀 ~ userService ~ getAllBalances ~ userDetails:", userDetails);
-            if (!userDetails) {
-                console.error("🚀 ~ userService ~ getUserDetails ~ User not found");
-                return {
-                    error: true,
-                    message: "User not found",
-                };
-            }
-            if (userDetails.password !== password) {
-                console.error("🚀 ~ userService ~ getUserDetails ~ Invalid email or password");
-                return {
-                    error: true,
-                    message: "Invalid email or password",
-                };
-            }
-            console.log("🚀 ~ userService ~ getUserDetails ~ Password verified");
-            if (userDetails.role.name !== "admin") {
-                console.log("🚀 ~ userService ~ getUserDetails ~ Does not have admin access");
-                return {
-                    error: true,
-                    message: "User does not have admin access",
-                };
-            }
             const allUserDetails = await this.userTable.find();
             console.log("🚀 ~ userService ~ allUserDetails:", allUserDetails);
             return {

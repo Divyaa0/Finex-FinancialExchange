@@ -5,7 +5,7 @@ import Transfer from './Components/Transfer';
 import TransferHistory from './Components/TransferHistory';
 import {BrowserRouter,Routes,Route} from 'react-router-dom';
 import AdminDetails from './Components/adminDashboard';
-
+import AllUsers from './Components/allUsers';
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
 
         <Route path='/transfer' element={<Transfer/>}></Route>
         <Route path='/transferHistory' element={<TransferHistory/>}></Route>
+        <Route path = '/allUsers' element={<AllUsers/>}></Route>
 
 
 

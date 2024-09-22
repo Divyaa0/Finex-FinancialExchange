@@ -10,27 +10,27 @@ import axios from 'axios';
 const UserInfo = () => {
 
   const Navigation = useNavigate();
-  let userInfo;
-  const userEmail_ = useSelector((state)=>state);
-  console.log("🚀 ~ UserInfo ~ userEmail_:", userEmail_)
-
+  const location = useLocation();
   const apiUrl = process.env.REACT_APP_API_URL;
-
-
-//  const isEmpty = (userEmail_)=> Object.keys(userEmail_).length===0
-//  console.log("🚀 ~ UserInfo ~ isEmpty:", isEmpty)
+  const [userInfo,setUserInfo]= useState();
 
  useEffect (()=>
 {
   console.log("before-------")
   const fetchUserDetails = async()=>
   {
-    userInfo=await axios.post(`${apiUrl}/transferHistory`,{email :userEmail_.user})
-    console.log("🚀 ~ API CALL ~ userInfo:", userInfo)
+    const fetchTokenFromLoaclStorage=localStorage.getItem("accessToken");
+    const fetchUser=await axios.post(`${apiUrl}/userDetails`,{},{headers:{accessToken:fetchTokenFromLoaclStorage}});
+    const userData=fetchUser.data;
+    console.log("🚀 ~ UserInfo ~ userData:", userData)
+    setUserInfo(userData)
+    console.log("🚀 ~ UserInfo ~ fetchUser:", fetchUser)
 
   }
   fetchUserDetails()
+
 },[])
+console.log("🚀 ~ API CALL ~ userInfo:", userInfo)
 
   const handleClose = async () => {
     Navigation('/')
@@ -42,14 +42,15 @@ const UserInfo = () => {
   const TransferHistory=()=>
   {
 
-      Navigation("/transferHistory")
+      Navigation("/transferHistory", {state: userInfo.email})
 
   }
   const getAllUsers=()=>
   {
-    // const userFilteredData=userData[0];
-    // console.log("🚀 ~ UserInfo ~ userFilteredData:", userFilteredData)
-    // Navigation('/admin' , {state : userFilteredData})
+    
+    Navigation('/allUsers')
+
+
   }
 
 
@@ -59,7 +60,7 @@ const UserInfo = () => {
     <div className="userCard" >
 
    {
-    !userEmail_
+    userInfo
     ?
     (
       <Card title={'User Details'}  >
@@ -85,7 +86,7 @@ const UserInfo = () => {
     (
       <strong>No user data available</strong>
     )
-   }
+   } 
       
     </div>
   )

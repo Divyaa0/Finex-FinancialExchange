@@ -2,7 +2,6 @@ import { Repository } from 'typeorm';
 import { UserInfo } from 'src/database/entities/user.entity';
 import { Transaction } from 'src/database/entities/transaction.entity';
 import { TransferDto } from '../dtos/makeTransfer.dto';
-import { TransferHistoryFilterDto } from '../dtos/transferHistory.dto';
 import { Queue } from 'bullmq';
 export declare class transferService {
     private userTable;
@@ -24,26 +23,17 @@ export declare class transferService {
     private getUserWithLock;
     private validateTransaction;
     private updateBalances;
-    getTransferHistory(transferHistoryDetails: TransferHistoryFilterDto): Promise<{
+    getTransferHistory(transferHistoryDetails: any): Promise<{
         error: boolean;
         message: string;
         success?: undefined;
         sentTx?: undefined;
         receivedTx?: undefined;
-        fetchDetails?: undefined;
     } | {
         success: boolean;
         sentTx: Transaction[];
         receivedTx: Transaction[];
         error?: undefined;
         message?: undefined;
-        fetchDetails?: undefined;
-    } | {
-        success: boolean;
-        fetchDetails: Transaction[];
-        error?: undefined;
-        message?: undefined;
-        sentTx?: undefined;
-        receivedTx?: undefined;
     }>;
 }

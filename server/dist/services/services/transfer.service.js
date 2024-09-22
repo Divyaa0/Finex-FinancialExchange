@@ -21,7 +21,6 @@ const transaction_entity_1 = require("../../database/entities/transaction.entity
 const bullmq_1 = require("@nestjs/bullmq");
 const bullmq_2 = require("bullmq");
 const Decimal = require('decimal.js');
-const typeorm_3 = require("typeorm");
 let transferService = class transferService {
     constructor(userTable, transactionTable, txQueue) {
         this.userTable = userTable;
@@ -74,9 +73,11 @@ let transferService = class transferService {
         console.log("🚀validateTransaction amount:", amount);
         console.log("🚀validateTransaction receiver:", receiver);
         let senderBalance = new Decimal(sender.balance);
-        console.log("🚀   senderBalance:", senderBalance);
+        let senderBalanceAmount = parseFloat(senderBalance);
         let receiverBalance = new Decimal(receiver.balance);
-        console.log(" receiverBalance:", receiverBalance);
+        let receiverBalanceAmount = parseFloat(receiverBalance);
+        let amount_ = new Decimal(amount);
+        let amountTransfer = parseFloat(amount_);
         if (!sender || !receiver) {
             return {
                 error: true,
@@ -89,7 +90,7 @@ let transferService = class transferService {
                 message: "Invalid Amount",
             };
         }
-        if (sender.balance < amount) {
+        if (senderBalanceAmount < amountTransfer) {
             return {
                 error: true,
                 message: "Insufficient balance",
@@ -125,53 +126,38 @@ let transferService = class transferService {
         }
     }
     async getTransferHistory(transferHistoryDetails) {
-        const { email, startDate, endDate, minAmount, maxAmount } = transferHistoryDetails;
-        console.log("🚀 ~ transferService ~ getTransferHistory ~ transferHistoryDetails:", transferHistoryDetails);
-        if (email) {
-            const findUser = await this.userTable.find({ where: { email: email } });
-            console.log("🚀 ~ transferService ~ getTransferHistory ~ user:", findUser);
-            if (!findUser) {
-                return {
-                    error: true,
-                    message: 'No user found with this email'
-                };
-            }
-            const userId = findUser[0].id;
-            const SendDetails = await this.transactionTable.find({
-                where: { sender: { id: userId } },
-                relations: ['sender', 'receiver']
-            });
-            console.log("🚀 ~ transferService ~ getTransferHistory ~ fetchDetails:", SendDetails);
-            const receiveDetails = await this.transactionTable.find({
-                where: { receiver: { id: userId } },
-                relations: ['sender', 'receiver']
-            });
+        const email = transferHistoryDetails.body.data;
+        console.log("🚀 ~ transferService ~ getTransferHistory ~ email:", email);
+        if (!email) {
+            const user = transferHistoryDetails['user'];
+            console.log("🚀 ~jwt ~ user:", user);
+            console.log("🚀 ~jwt user:", user);
+            const email = user.email;
+        }
+        const findUser = await this.userTable.find({ where: { email: email } });
+        console.log("🚀 ~ transferService ~ getTransferHistory ~ findUser:", findUser);
+        console.log("🚀 ~ transferService ~ getTransferHistory ~ user:", findUser);
+        if (!findUser) {
             return {
-                success: true,
-                sentTx: SendDetails,
-                receivedTx: receiveDetails,
+                error: true,
+                message: 'No user found with this email'
             };
         }
-        if (startDate && endDate) {
-        }
-        if (minAmount && maxAmount) {
-            const fetchDetails = await this.transactionTable.find({
-                where: {
-                    amount: (0, typeorm_3.Between)(minAmount, maxAmount),
-                },
-                relations: ['sender', 'receiver'],
-            });
-            if (fetchDetails.length === 0) {
-                return {
-                    error: true,
-                    message: 'No Transaction found within specified range',
-                };
-            }
-            return {
-                success: true,
-                fetchDetails: fetchDetails
-            };
-        }
+        const userId = findUser[0].id;
+        const SendDetails = await this.transactionTable.find({
+            where: { sender: { id: userId } },
+            relations: ['sender', 'receiver']
+        });
+        console.log("🚀 ~ transferService ~ getTransferHistory ~ fetchDetails:", SendDetails);
+        const receiveDetails = await this.transactionTable.find({
+            where: { receiver: { id: userId } },
+            relations: ['sender', 'receiver']
+        });
+        return {
+            success: true,
+            sentTx: SendDetails,
+            receivedTx: receiveDetails,
+        };
     }
 };
 exports.transferService = transferService;

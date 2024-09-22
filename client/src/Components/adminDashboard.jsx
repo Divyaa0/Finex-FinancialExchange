@@ -37,12 +37,18 @@ const AdminDetails = () => {
             fetchUserData();
         }
     }, []);
+
+
     const TransferHistory=(user)=>
         {
           const data =
-            Navigation("/transferHistory", { state: user.email })
+            Navigation("/transferHistory")
       
         }
+    const checkAllUsers=()=>
+    {
+        Navigation('/allUsers')
+    }
     return (
         <div className='allBalancesDiv'>
             {users.map(user => (

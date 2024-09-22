@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -12,39 +12,60 @@ const Transfer = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
   const toast = useRef(null);
 
-  const userInfo=useSelector((state)=>state.user);
-  console.log("🚀 ~ Transfer ~ userInfo:", userInfo)
+
   const isEmpty= (userData)=> Object.keys(userData).length===0
 
   const Navigation = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setReceiverEmail] = useState('');
+  const [senderemail, setSenderEmail] = useState('');
+
   const [amount, setAmount] = useState();
   const [transferConfirmDialogBox, setTransferConfirmDialogBox] = useState(false);
   const [errors, setErrors] = useState({});
+  console.log("🚀 ~ Transfer ~ errors:", errors)
+
+
+
+  useEffect (()=>
+    {
+      const fetchUserDetails = async()=>
+      {
+        const fetchTokenFromLoaclStorage=localStorage.getItem("accessToken");
+        const fetchUser=await axios.post(`${apiUrl}/userDetails`,{},{headers:{accessToken:fetchTokenFromLoaclStorage}});
+        const senderEmail=fetchUser.data.email;
+        console.log("🚀 ~ UserInfo ~ senderEmail:", senderEmail)
+        setSenderEmail(senderEmail)
+        console.log("🚀 ~ UserInfo ~ fetchUser:", fetchUser)
+    
+      }
+      fetchUserDetails()
+    
+    },[])
 
   const handleClose = async () => {
     Navigation('/user')
   }
-
   const handleTransfer = async (event) => {
     event.preventDefault();
     const validationResponse=formValidate(email, amount)
     console.log("🚀 ~ handleSubmit ~ validationResponse:", validationResponse)
-    console.log("errors are --",errors)
 
     if (validationResponse) {
       // Proceed with your transfer logic
       setTransferConfirmDialogBox(true); // Show confirmation dialog
     } else {
+    console.log("errors are --",errors)
+
       // Show validation errors
-      toast.current.show({ severity: 'error', summary: 'Validation Errors', life: 3000 });
+      toast.current.show({ severity: 'error', summary: 'Validation Error', life: 3000 });
     }
   };
   const makeTransfer=async()=>
   {
 
-    const request={sender:userInfo.email , receiver:email , amount:amount};
-    const makeTransferCall=await axios.post(`${apiUrl}/transfer`,request);
+    const request={sender:senderemail , receiver:email , amount:amount};
+    const fetchTokenFromLoaclStorage=localStorage.getItem("accessToken");
+    const makeTransferCall=await axios.post(`${apiUrl}/transfer`,request,{headers:{accessToken:fetchTokenFromLoaclStorage}});
     const transferResponse=makeTransferCall.data
     if(transferResponse && transferResponse.success===true)
     {
@@ -58,9 +79,7 @@ const Transfer = () => {
 
     }
     
-    console.log("🚀 ~ Transfer ~ makeTransferCall:", makeTransferCall.data)
   }
-
   const formValidate = (email, amount) => {
     let bugs = {};
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -69,6 +88,10 @@ const Transfer = () => {
     else if (!amount) {
       bugs.password = "Invalid amount!";
     }
+    else if(senderemail === email)
+    {
+      bugs.emails = "You can't send money to own account!"
+    }
    
     
 
@@ -76,8 +99,6 @@ const Transfer = () => {
     console.log("bugs-----",bugs);
     return Object.keys(bugs).length === 0
   }
-
-
   const transferConfirmContent = (
     <div >
       <Button label="No" icon="pi pi-times" onClick={() => setTransferConfirmDialogBox(false)} severity="danger" />
@@ -88,7 +109,7 @@ const Transfer = () => {
   return (
     <div className='transferForm'>
      {
-      !isEmpty(userInfo)
+     senderemail
       ?
       (
         <Card title={'Transfer Funds'}>
@@ -102,7 +123,7 @@ const Transfer = () => {
             name="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setReceiverEmail(e.target.value)}
           />
 
           <label htmlFor="amount">Amount</label>

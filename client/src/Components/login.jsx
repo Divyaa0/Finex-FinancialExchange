@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { setUser } from './redux/setUserSlice';
 
 const Login = () => {
+  localStorage.clear()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -25,36 +26,39 @@ const Login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Login Form Submission . . .");
     setErrors(formValidate(email, password));
     let request = { email: email, password: password }
 
     if (formValidate(email, password)) {
-      const response = await axios.post(`${apiUrl}/userDetails`, request);
-      console.log("🚀 ~ handleSubmit ~ response:", response.data)
-      const checkId = response.data.role.id;
-      if (response.data.error) {
-        toast.current.show({ severity: "error", summary: response.data.message, life: 3000 });
-
+      const responseLogin = await axios.post(`${apiUrl}/login`, request);
+      const accessToken = responseLogin.data.accesstoken
+      console.log("🚀 ~ handleSubmit ~ accessToken:", accessToken)
+      if (!accessToken) {
+        toast.current.show({ severity: "error", summary: 'Error in login ', life: 3000 });
       }
       else {
-        toast.current.show({ severity: 'success', summary: 'Login successful', life: 3000 });
-        // localStorage.setItem('user',email)
+       localStorage.setItem("accessToken", accessToken);
+       console.log("setting token in local storage . . . . ")
+        const fetchTokenFromLoaclStorage=localStorage.getItem("accessToken");
+        console.log("🚀 ~ handleSubmit ~ fetchTokenFromLoaclStorage:", fetchTokenFromLoaclStorage)
 
-        // update redux
-        dispatch(setUser(email))
+        const responseCheckUser = await axios.post(`${apiUrl}/userDetails`,{},{headers:{accessToken:fetchTokenFromLoaclStorage}});
 
-        if (checkId === isAdmin) {
-          console.log("===========ADMIN============")
-          setTimeout(() => {
-            Navigation("/user", { state: response.data });
 
-          }, 1000)
+        console.log("🚀 ~ handleSubmit ~ response:", responseCheckUser.data)
+
+        if (responseCheckUser.data.error) {
+          toast.current.show({ severity: "error", summary: responseCheckUser.data.message, life: 3000 });
 
         }
         else {
+          toast.current.show({ severity: 'success', summary: 'Login successful', life: 3000 });
+          // localStorage.setItem('user',email)
+
+          // update redux
+          dispatch(setUser(email))
           setTimeout(() => {
-            Navigation("/user", { state: response.data });
+            Navigation("/user", { state: responseCheckUser.data });
 
           }, 1000)
 
@@ -62,8 +66,6 @@ const Login = () => {
 
 
       }
-
-
     }
     else {
       toast.current.show({ severity: 'error', summary: 'Validation Errors', life: 3000 });
@@ -85,7 +87,6 @@ const Login = () => {
   }
 
   return (
-
     <div className='parent'>
       <Toast ref={toast} />
       <form onSubmit={handleSubmit}>
