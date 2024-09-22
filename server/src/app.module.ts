@@ -12,7 +12,6 @@ import { transferService } from './services/services/transfer.service';
 
 // 
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from './database/dataSource';
 import { UserInfo } from './database/entities/user.entity';
 import { Transaction } from './database/entities/transaction.entity';
 import { Role } from './database/entities/role.entity';
@@ -48,22 +47,7 @@ import { AuthGuard } from './services/auth/jwtGuards';
     TypeOrmModule.forFeature([
       UserInfo, Transaction
     ]),
-    // BULLMQ
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      },
-
-    }),
-    BullModule.registerQueue({
-      name: "transactionQueue",
-      defaultJobOptions: {
-        attempts: 2
-      },
-    },
-    ),
-
+   
 
   ],
   controllers: [AppController, userController, transferController],

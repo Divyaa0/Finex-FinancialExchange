@@ -18,7 +18,6 @@ const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("./database/entities/user.entity");
 const transaction_entity_1 = require("./database/entities/transaction.entity");
 const role_entity_1 = require("./database/entities/role.entity");
-const bull_1 = require("@nestjs/bull");
 const jwt_1 = require("@nestjs/jwt");
 const constant_1 = require("./services/auth/constant");
 const jwtGuards_1 = require("./services/auth/jwtGuards");
@@ -47,18 +46,6 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([
                 user_entity_1.UserInfo, transaction_entity_1.Transaction
             ]),
-            bull_1.BullModule.forRoot({
-                redis: {
-                    host: 'localhost',
-                    port: 6379,
-                },
-            }),
-            bull_1.BullModule.registerQueue({
-                name: "transactionQueue",
-                defaultJobOptions: {
-                    attempts: 2
-                },
-            }),
         ],
         controllers: [app_controller_1.AppController, user_controller_1.userController, transfer_controller_1.transferController],
         providers: [app_service_1.AppService, jwtGuards_1.AuthGuard,
