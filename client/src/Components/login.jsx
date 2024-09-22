@@ -16,7 +16,6 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const toast = useRef(null);
   const apiUrl = process.env.REACT_APP_API_URL;
-  const isAdmin = process.env.REACT_APP_ADMIN_ID;
   const Navigation = useNavigate();
 
   // redux

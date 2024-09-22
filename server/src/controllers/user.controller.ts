@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Inject, UseGuards ,Post,Req} from '@nestjs/common';
-import { dataSourceOptions } from 'src/database/dataSource';
 import { DataSource } from 'typeorm';
 import { UserInfo } from 'src/database/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
